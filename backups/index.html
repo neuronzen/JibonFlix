@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JibonFlix — Anime & Video</title>
+    <meta name="description" content="JibonFlix — Anime and video streaming platform">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="#" class="logo">
+        <span class="logo-icon">J</span>
+        <span>Jibon<span>Flix</span></span>
+    </a>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#anime">Anime</a>
+        <a href="#latest">Latest</a>
+    </nav>
+
+    <div class="search-area">
+    <button class="search-btn" id="searchButton" onclick="focusSearch()">⌕</button>
+
+    <div class="search-box">
+        <input
+            type="search"
+            id="animeSearch"
+            placeholder="Search anime..."
+            autocomplete="off"
+        >
+
+        <div id="searchSuggestions" class="search-suggestions"></div>
+    </div>
+</div>
+</header>
+
+
+<main>
+
+<section class="hero" id="home">
+    <div class="hero-content">
+        <div class="badge">WELCOME TO JIBONFLIX</div>
+
+        <h1>Watch your favorite<br><span>Anime & Videos</span></h1>
+
+        <p>
+            A simple and modern place to watch anime and videos,
+            created with passion by Jubayer Ahmmed Jibon
+        </p>
+
+        <div class="hero-buttons">
+            <a href="#latest" class="primary-btn">▶ Start Watching</a>
+            <a href="#anime" class="secondary-btn">Explore Anime</a>
+        </div>
+    </div>
+</section>
+
+
+<section class="section" id="anime">
+
+    <div class="section-header">
+        <div>
+            <span class="section-label">COLLECTION</span>
+            <h2>Anime</h2>
+        </div>
+
+        <button class="view-btn" onclick="showMessage()">
+            View All →
+        </button>
+    </div>
+
+    <div class="anime-grid">
+
+        <a href="anime.html" class="anime-card">
+            <div class="poster poster-one">
+                <span class="status">NEW</span>
+                <div class="poster-title">JIBON<br>ADVENTURE</div>
+            </div>
+
+            <div class="card-info">
+                <h3>Jibon Adventure</h3>
+                <p>12 Episodes • Action</p>
+            </div>
+        </a>
+
+
+        <a href="anime.html?anime=dream-world" class="anime-card">
+            <div class="poster poster-two">
+                <span class="status">HD</span>
+                <div class="poster-title">DREAM<br>WORLD</div>
+            </div>
+
+            <div class="card-info">
+                <h3>Dream World</h3>
+                <p>24 Episodes • Fantasy</p>
+            </div>
+        </a>
+
+
+        <a href="anime.html?anime=last-horizon" class="anime-card">
+            <div class="poster poster-three">
+                <span class="status">NEW</span>
+                <div class="poster-title">LAST<br>HORIZON</div>
+            </div>
+
+            <div class="card-info">
+                <h3>Last Horizon</h3>
+                <p>13 Episodes • Adventure</p>
+            </div>
+        </a>
+
+
+        <a href="anime.html?anime=night-fall" class="anime-card">
+            <div class="poster poster-four">
+                <span class="status">HD</span>
+                <div class="poster-title">NIGHT<br>FALL</div>
+            </div>
+
+            <div class="card-info">
+                <h3>Night Fall</h3>
+                <p>10 Episodes • Mystery</p>
+            </div>
+        </a>
+
+    </div>
+</section>
+
+
+<section class="latest section" id="latest">
+
+    <div class="section-header">
+        <div>
+            <span class="section-label">JUST ADDED</span>
+            <h2>Latest Episodes</h2>
+        </div>
+    </div>
+
+    <div class="episode-list">
+
+        <div class="episode">
+            <div class="episode-number">01</div>
+
+            <div class="episode-info">
+                <h3>Jibon Adventure</h3>
+                <p>Episode 01 • 1080p</p>
+            </div>
+
+            <button onclick="playDemo()">▶</button>
+        </div>
+
+
+        <div class="episode">
+            <div class="episode-number">02</div>
+
+            <div class="episode-info">
+                <h3>Dream World</h3>
+                <p>Episode 02 • 1080p</p>
+            </div>
+
+            <button onclick="playDemo()">▶</button>
+        </div>
+
+
+        <div class="episode">
+            <div class="episode-number">03</div>
+
+            <div class="episode-info">
+                <h3>Last Horizon</h3>
+                <p>Episode 03 • 720p</p>
+            </div>
+
+            <button onclick="playDemo()">▶</button>
+        </div>
+
+    </div>
+</section>
+
+</main>
+
+
+<footer>
+
+    <div class="footer-brand">
+        <div class="footer-logo">JibonFlix</div>
+
+        <p>
+            Anime & video streaming platform
+        </p>
+    </div>
+
+    <div class="developer-credit">
+        <span>Created & Developed by</span>
+        <strong>Jubayer Ahmmed Jibon</strong>
+    </div>
+
+    <div class="copyright">
+        © 2026 JibonFlix. All rights reserved.
+    </div>
+
+</footer>
+
+
+<div id="toast"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
