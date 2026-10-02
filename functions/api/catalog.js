@@ -1,6 +1,14 @@
 const R2_PUBLIC_URL =
     "https://pub-8bf3e386e2b047c9906af484d69173d6.r2.dev";
 
+function makeTitle(folder) {
+    return folder
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
 export async function onRequestGet(context) {
     const { env } = context;
 
@@ -40,9 +48,12 @@ export async function onRequestGet(context) {
         if (!animeMap[folder]) {
             animeMap[folder] = {
                 id: folder,
-                title: folder
-                    .replace(/[-_]+/g, " ")
-                    .replace(/\b\w/g, char => char.toUpperCase()),
+                title: makeTitle(folder),
+                year: null,
+                genre: [],
+                description: "",
+                status: "NEW",
+                poster: null,
                 episodes: []
             };
         }
@@ -57,6 +68,31 @@ export async function onRequestGet(context) {
                 .map(encodeURIComponent)
                 .join("/")}`
         });
+    }
+
+    // Load optional info.json metadata from each anime folder
+    for (const folder of Object.keys(animeMap)) {
+        try {
+            const infoObject = await env.JIBONFLIX_BUCKET.get(`${folder}/info.json`);
+
+            if (infoObject) {
+                const text = await infoObject.text();
+                const info = JSON.parse(text);
+
+                if (info.title) animeMap[folder].title = info.title;
+                if (info.year !== undefined) animeMap[folder].year = info.year;
+                if (Array.isArray(info.genre)) animeMap[folder].genre = info.genre;
+                if (info.description) animeMap[folder].description = info.description;
+                if (info.status) animeMap[folder].status = info.status;
+
+                if (info.poster) {
+                    animeMap[folder].poster =
+                        `${R2_PUBLIC_URL}/${folder}/${encodeURIComponent(info.poster)}`;
+                }
+            }
+        } catch (error) {
+            // Keep default metadata if info.json is missing or invalid.
+        }
     }
 
     const anime = Object.values(animeMap)
