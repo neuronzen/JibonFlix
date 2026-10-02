@@ -31,15 +31,13 @@
     <div class="breadcrumb">
         <a href="index.html">Home</a>
         <span>›</span>
-        <a href="anime.html" id="breadcrumbAnime">Jibon Adventure</a>
+        <a href="#" id="breadcrumbAnime">Anime</a>
         <span>›</span>
-        <strong>Episode 01</strong>
+        <strong id="breadcrumbEpisode">Episode 01</strong>
     </div>
 
 
     <div class="video-container">
-
-        <!-- Real video will be connected here later -->
 
         <div class="video-player-box">
 
@@ -49,11 +47,11 @@
 
             <video
                 class="real-player"
+                id="videoPlayer"
                 controls
                 playsinline
                 preload="metadata"
             >
-                <source src="assets/test.mkv" type="video/x-matroska">
                 Your browser does not support HTML5 video.
             </video>
 
@@ -65,12 +63,14 @@
     <div class="watch-info">
 
         <div>
-            <span class="section-label" id="episodeAnimeTitle">JIBON ADVENTURE</span>
+            <span class="section-label" id="episodeAnimeTitle">
+                ANIME
+            </span>
 
-            <h1>Episode 01</h1>
+            <h1 id="episodeTitle">Episode 01</h1>
 
-            <p class="episode-meta">
-                1080p • 101 MB
+            <p class="episode-meta" id="episodeMeta">
+                Loading...
             </p>
         </div>
 
@@ -81,6 +81,7 @@
                 class="action-button"
                 id="downloadButton"
                 href="#"
+                download
             >
                 ↓ Download
             </a>
@@ -96,15 +97,15 @@
 
     <div class="episode-navigation">
 
-        <a href="#" class="nav-episode previous-episode disabled">
+        <a href="#" class="nav-episode previous-episode disabled" id="previousEpisode">
             ← Previous
         </a>
 
-        <a href="anime.html" class="nav-episode">
+        <a href="#" class="nav-episode" id="episodeListButton">
             Episode List
         </a>
 
-        <a href="episode.html?ep=2" class="nav-episode next-episode">
+        <a href="#" class="nav-episode next-episode" id="nextEpisode">
             Next →
         </a>
 
@@ -115,48 +116,23 @@
 
         <div class="section-header">
             <div>
-                <span class="section-label" id="episodeAnimeTitle">JIBON ADVENTURE</span>
+                <span class="section-label" id="moreEpisodesLabel">
+                    ANIME
+                </span>
                 <h2>More Episodes</h2>
             </div>
         </div>
 
 
-        <div class="episode-grid">
-
-            <a class="episode-card active" href="episode.html?ep=1">
-                <span>01</span>
-                <div>
-                    <strong>Episode 01</strong>
-                    <small>1080p • 175 MB</small>
-                </div>
-                <b>▶</b>
-            </a>
-
-            <a class="episode-card" href="episode.html?ep=2">
-                <span>02</span>
-                <div>
-                    <strong>Episode 02</strong>
-                    <small>1080p • 182 MB</small>
-                </div>
-                <b>▶</b>
-            </a>
-
-            <a class="episode-card" href="episode.html?ep=3">
-                <span>03</span>
-                <div>
-                    <strong>Episode 03</strong>
-                    <small>1080p • 190 MB</small>
-                </div>
-                <b>▶</b>
-            </a>
-
+        <div class="episode-grid" id="moreEpisodes">
+            <p>Loading episodes...</p>
         </div>
 
     </section>
 
 </section>
 
-</main>
+</main></main>
 
 
 <footer>
@@ -179,7 +155,221 @@
 
 <script src="app.js"></script>
 
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const animeKey = params.get("anime") || "";
+const episodeNumber = Number(params.get("ep")) || 1;
+
+const videoPlayer = document.getElementById("videoPlayer");
+const episodeTitle = document.getElementById("episodeTitle");
+const episodeMeta = document.getElementById("episodeMeta");
+const episodeAnimeTitle = document.getElementById("episodeAnimeTitle");
+const breadcrumbAnime = document.getElementById("breadcrumbAnime");
+const breadcrumbEpisode = document.getElementById("breadcrumbEpisode");
+const episodeListButton = document.getElementById("episodeListButton");
+const previousEpisode = document.getElementById("previousEpisode");
+const nextEpisode = document.getElementById("nextEpisode");
+const moreEpisodes = document.getElementById("moreEpisodes");
+const moreEpisodesLabel = document.getElementById("moreEpisodesLabel");
+const downloadButton = document.getElementById("downloadButton");
+
+let currentAnime = null;
+let currentEpisode = null;
+
+async function loadEpisode() {
+
+    try {
+
+        const response = await fetch("/api/catalog");
+
+        if (!response.ok) {
+            throw new Error("Catalog request failed");
+        }
+
+        const data = await response.json();
+
+        currentAnime = data.anime.find(item => item.id === animeKey);
+
+        if (!currentAnime) {
+            throw new Error("Anime not found");
+        }
+
+        currentEpisode =
+            currentAnime.episodes.find(
+                episode => episode.number === episodeNumber
+            );
+
+        if (!currentEpisode) {
+            throw new Error("Episode not found");
+        }
+
+        const title = currentAnime.title;
+
+        const sizeMB =
+            Math.round(currentEpisode.size / (1024 * 1024));
+
+        const episodeLabel =
+            `Episode ${String(currentEpisode.number).padStart(2, "0")}`;
+
+        document.title =
+            `${episodeLabel} — ${title} — JibonFlix`;
+
+        episodeAnimeTitle.textContent =
+            title.toUpperCase();
+
+        moreEpisodesLabel.textContent =
+            title.toUpperCase();
+
+        episodeTitle.textContent =
+            episodeLabel;
+
+        episodeMeta.textContent =
+            `${currentEpisode.filename.toLowerCase().endsWith(".mkv") ? "1080p" : "1080p"} • ${sizeMB} MB`;
+
+        breadcrumbAnime.textContent = title;
+
+        breadcrumbAnime.href =
+            `anime.html?anime=${encodeURIComponent(animeKey)}`;
+
+        breadcrumbEpisode.textContent =
+            episodeLabel;
+
+        episodeListButton.href =
+            `anime.html?anime=${encodeURIComponent(animeKey)}`;
+
+        videoPlayer.innerHTML =
+            `<source src="${currentEpisode.video}" type="${getVideoType(currentEpisode.filename)}">`;
+
+        videoPlayer.load();
+
+        downloadButton.href =
+            currentEpisode.video;
+
+        setupNavigation();
+
+        renderMoreEpisodes();
+
+    } catch (error) {
+
+        console.error("JibonFlix episode error:", error);
+
+        episodeTitle.textContent =
+            "Episode unavailable";
+
+        episodeMeta.textContent =
+            "This episode is not available";
+
+        moreEpisodes.innerHTML =
+            "<p>Unable to load episode right now.</p>";
+
+    }
+}
+
+function getVideoType(filename) {
+
+    const extension =
+        filename.split(".").pop().toLowerCase();
+
+    if (extension === "mkv") {
+        return "video/x-matroska";
+    }
+
+    if (extension === "webm") {
+        return "video/webm";
+    }
+
+    return "video/mp4";
+}
+
+function setupNavigation() {
+
+    const episodes =
+        currentAnime.episodes;
+
+    const currentIndex =
+        episodes.findIndex(
+            episode => episode.number === episodeNumber
+        );
+
+    if (currentIndex > 0) {
+
+        const previous =
+            episodes[currentIndex - 1];
+
+        previousEpisode.href =
+            `episode.html?anime=${encodeURIComponent(animeKey)}&ep=${previous.number}`;
+
+        previousEpisode.classList.remove("disabled");
+
+    } else {
+
+        previousEpisode.href = "#";
+        previousEpisode.classList.add("disabled");
+
+    }
+
+    if (currentIndex < episodes.length - 1) {
+
+        const next =
+            episodes[currentIndex + 1];
+
+        nextEpisode.href =
+            `episode.html?anime=${encodeURIComponent(animeKey)}&ep=${next.number}`;
+
+        nextEpisode.classList.remove("disabled");
+
+    } else {
+
+        nextEpisode.href = "#";
+        nextEpisode.classList.add("disabled");
+
+    }
+}
+
+function renderMoreEpisodes() {
+
+    moreEpisodes.innerHTML =
+        currentAnime.episodes.map(episode => {
+
+            const sizeMB =
+                Math.round(episode.size / (1024 * 1024));
+
+            const number =
+                String(episode.number).padStart(2, "0");
+
+            const active =
+                episode.number === episodeNumber
+                    ? " active"
+                    : "";
+
+            return `
+                <a
+                    class="episode-card${active}"
+                    href="episode.html?anime=${encodeURIComponent(animeKey)}&ep=${episode.number}"
+                >
+
+                    <span>${number}</span>
+
+                    <div>
+                        <strong>Episode ${number}</strong>
+                        <small>1080p • ${sizeMB} MB</small>
+                    </div>
+
+                    <b>▶</b>
+
+                </a>
+            `;
+
+        }).join("");
+}
+
+loadEpisode();
+
+</script>
+
 </body>
-<script src="episode-data.js"></script>
+
 
 </html>
