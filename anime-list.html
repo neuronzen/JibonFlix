@@ -69,88 +69,115 @@
 </footer>
 
 
-<script src="anime-data.js"></script>
-
 <script>
 
 const animeList = document.getElementById("animeList");
 const animeCount = document.getElementById("animeCount");
 
-const animeStatuses = {
-    "hells-paradise": "NEW"
-};
+async function loadAnimeCatalog() {
 
-if (animeList && typeof animeData !== "undefined") {
+    if (!animeList) return;
 
-    const entries = Object.entries(animeData);
+    try {
 
-    animeCount.textContent =
-        `${entries.length} Anime`;
+        const response = await fetch("/api/catalog");
 
-    animeList.innerHTML = entries.map(([key, anime]) => {
-
-        const titleWords =
-            anime.title.toUpperCase().split(" ");
-
-        let posterTitle;
-
-        if (titleWords.length >= 2) {
-            posterTitle =
-                `${titleWords.slice(0, -1).join("<br>")}<br>${titleWords[titleWords.length - 1]}`;
-        } else {
-            posterTitle = anime.title.toUpperCase();
+        if (!response.ok) {
+            throw new Error("Catalog API request failed");
         }
 
-        const status =
-            animeStatuses[key] || "HD";
+        const data = await response.json();
 
-        const genre =
-            anime.genres && anime.genres.length
-                ? anime.genres[0]
-                : "Anime";
+        if (!data.success || !Array.isArray(data.anime)) {
+            throw new Error("Invalid catalog data");
+        }
 
-        return `
-            <a
-                href="anime.html?anime=${encodeURIComponent(key)}"
-                class="anime-card"
-            >
+        const entries = data.anime;
 
-                <div class="poster ${anime.poster}">
+        animeCount.textContent =
+            `${entries.length} Anime`;
 
-                    <span class="status">
-                        ${status}
-                    </span>
+        if (!entries.length) {
+            animeList.innerHTML =
+                "<p>No anime available yet.</p>";
+            return;
+        }
 
-                    <div class="poster-title">
-                        ${posterTitle}
+        animeList.innerHTML = entries.map(anime => {
+
+            const key = anime.id;
+
+            const titleWords =
+                anime.title.toUpperCase().split(" ");
+
+            let posterTitle;
+
+            if (titleWords.length >= 2) {
+                posterTitle =
+                    `${titleWords.slice(0, -1).join("<br>")}<br>${titleWords[titleWords.length - 1]}`;
+            } else {
+                posterTitle = anime.title.toUpperCase();
+            }
+
+            const genre = "Anime";
+
+            const status = "NEW";
+
+            return `
+                <a
+                    href="anime.html?anime=${encodeURIComponent(key)}"
+                    class="anime-card"
+                >
+
+                    <div class="poster poster-five">
+
+                        <span class="status">
+                            ${status}
+                        </span>
+
+                        <div class="poster-title">
+                            ${posterTitle}
+                        </div>
+
                     </div>
 
-                </div>
+                    <div class="card-info">
 
+                        <h3>${anime.title}</h3>
 
-                <div class="card-info">
+                        <p>
+                            ${anime.episodeCount} Episodes
+                            •
+                            ${genre}
+                        </p>
 
-                    <h3>${anime.title}</h3>
+                        <small class="anime-quality">
+                            1080p
+                        </small>
 
-                    <p>
-                        ${anime.episodes}
-                        •
-                        ${genre}
-                    </p>
+                    </div>
 
-                    <small class="anime-quality">
-                        ${anime.quality}
-                    </small>
+                </a>
+            `;
 
-                </div>
+        }).join("");
 
-            </a>
-        `;
+    } catch (error) {
 
-    }).join("");
+        console.error("JibonFlix catalog error:", error);
+
+        animeCount.textContent = "0 Anime";
+
+        animeList.innerHTML =
+            "<p>Unable to load anime right now.</p>";
+    }
 }
 
+loadAnimeCatalog();
+
 </script>
+
+
 
 </body>
 </html>
