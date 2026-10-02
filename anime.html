@@ -26,39 +26,34 @@
 
 <section class="anime-hero">
 
-    <div class="anime-cover poster-one">
-        <div class="poster-title">JIBON<br>ADVENTURE</div>
-        <span class="status">HD</span>
+    <div class="anime-cover poster-five">
+        <div class="poster-title" id="animePosterTitle">
+            LOADING
+        </div>
+        <span class="status" id="animeStatus">NEW</span>
     </div>
 
     <div class="anime-description">
 
-        <span class="section-label">ANIME • 2026</span>
+        <span class="section-label" id="animeLabel">
+            JIBONFLIX
+        </span>
 
-        <h1>Jibon Adventure</h1>
+        <h1 id="animeTitle">Loading...</h1>
 
-        <div class="anime-meta">
-            <span>2026</span>
-            <span>•</span>
-            <span>12 Episodes</span>
-            <span>•</span>
-            <span>1080p</span>
+        <div class="anime-meta" id="animeMeta">
+            <span>Loading...</span>
         </div>
 
-        <p>
-            A mysterious journey begins when a young hero discovers
-            a hidden world beyond his village. Adventure, friendship
-            and unexpected secrets await.
+        <p id="animeDescription">
+            Loading anime information...
         </p>
 
-        <div class="genres">
-            <span>Action</span>
-            <span>Adventure</span>
-            <span>Fantasy</span>
+        <div class="genres" id="animeGenres">
         </div>
 
         <div class="anime-actions">
-            <a href="episode.html?ep=1" class="watch-button">
+            <a href="#" class="watch-button" id="watchButton">
                 <span class="watch-icon">▶</span>
                 <span>Watch Now</span>
             </a>
@@ -78,47 +73,13 @@
         </div>
     </div>
 
-    <div class="episode-grid">
-        <a class="episode-card" href="episode.html?ep=1">
-            <span>01</span>
-            <div>
-                <strong>Episode 01</strong>
-                <small>1080p • 101 MB</small>
-            </div>
-            <b>▶</b>
-        </a>
-
-        <a class="episode-card" href="episode.html?ep=2">
-            <span>02</span>
-            <div>
-                <strong>Episode 02</strong>
-                <small>1080p • 182 MB</small>
-            </div>
-            <b>▶</b>
-        </a>
-
-        <a class="episode-card" href="episode.html?ep=3">
-            <span>03</span>
-            <div>
-                <strong>Episode 03</strong>
-                <small>1080p • 190 MB</small>
-            </div>
-            <b>▶</b>
-        </a>
-
-        <a class="episode-card" href="episode.html?ep=4">
-            <span>04</span>
-            <div>
-                <strong>Episode 04</strong>
-                <small>1080p • 165 MB</small>
-            </div>
-            <b>▶</b>
-        </a>
+    <div class="episode-grid" id="episodeGrid">
+        <p>Loading episodes...</p>
     </div>
 
 </section>
 
-</main>
+</main></main>
 
 
 <footer>
@@ -136,7 +97,129 @@
 
 </footer>
 
-    <script src="anime-data.js"></script>
+
+
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const animeKey = params.get("anime") || "";
+
+const animeTitle = document.getElementById("animeTitle");
+const animeLabel = document.getElementById("animeLabel");
+const animeMeta = document.getElementById("animeMeta");
+const animeDescription = document.getElementById("animeDescription");
+const animeGenres = document.getElementById("animeGenres");
+const animePosterTitle = document.getElementById("animePosterTitle");
+const animeStatus = document.getElementById("animeStatus");
+const watchButton = document.getElementById("watchButton");
+const episodeGrid = document.getElementById("episodeGrid");
+
+async function loadAnime() {
+
+    try {
+
+        const response = await fetch("/api/catalog");
+
+        if (!response.ok) {
+            throw new Error("Catalog request failed");
+        }
+
+        const data = await response.json();
+
+        const anime = data.anime.find(item => item.id === animeKey);
+
+        if (!anime) {
+            throw new Error("Anime not found");
+        }
+
+        const title = anime.title;
+
+        const titleWords = title.toUpperCase().split(" ");
+
+        if (titleWords.length >= 2) {
+            animePosterTitle.innerHTML =
+                `${titleWords.slice(0, -1).join("<br>")}<br>${titleWords[titleWords.length - 1]}`;
+        } else {
+            animePosterTitle.textContent = title.toUpperCase();
+        }
+
+        animeTitle.textContent = title;
+
+        animeLabel.textContent =
+            `ANIME • ${new Date(anime.episodes[0].uploaded).getFullYear()}`;
+
+        animeMeta.innerHTML = `
+            <span>${anime.episodeCount} Episodes</span>
+            <span>•</span>
+            <span>1080p</span>
+        `;
+
+        animeDescription.textContent =
+            `Watch ${title} episodes on JibonFlix.`;
+
+        animeGenres.innerHTML =
+            `<span>Anime</span>`;
+
+        document.title =
+            `${title} — JibonFlix`;
+
+        if (anime.episodes.length > 0) {
+
+            const firstEpisode = anime.episodes[0].number;
+
+            watchButton.href =
+                `episode.html?anime=${encodeURIComponent(animeKey)}&ep=${firstEpisode}`;
+
+        }
+
+        episodeGrid.innerHTML =
+            anime.episodes.map(episode => {
+
+                const sizeMB =
+                    Math.round(episode.size / (1024 * 1024));
+
+                return `
+                    <a
+                        class="episode-card"
+                        href="episode.html?anime=${encodeURIComponent(animeKey)}&ep=${episode.number}"
+                    >
+
+                        <span>
+                            ${String(episode.number).padStart(2, "0")}
+                        </span>
+
+                        <div>
+                            <strong>
+                                Episode ${String(episode.number).padStart(2, "0")}
+                            </strong>
+
+                            <small>
+                                1080p • ${sizeMB} MB
+                            </small>
+                        </div>
+
+                        <b>▶</b>
+
+                    </a>
+                `;
+
+            }).join("");
+
+    } catch (error) {
+
+        console.error("JibonFlix anime error:", error);
+
+        animeTitle.textContent = "Anime unavailable";
+
+        episodeGrid.innerHTML =
+            "<p>Unable to load anime right now.</p>";
+    }
+}
+
+loadAnime();
+
+</script>
 
 </body>
 </html>
