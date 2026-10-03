@@ -239,9 +239,8 @@ async function loadEpisode() {
         episodeListButton.href =
             `anime.html?anime=${encodeURIComponent(animeKey)}`;
 
-        videoPlayer.innerHTML =
-            `<source src="${currentEpisode.video}" type="${getVideoType(currentEpisode.filename)}">`;
-
+        videoPlayer.innerHTML = "";
+        videoPlayer.src = currentEpisode.video;
         videoPlayer.load();
 
         downloadButton.href =
